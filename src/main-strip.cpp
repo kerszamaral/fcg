@@ -55,8 +55,6 @@ constexpr uint NUM_POINTS = 32;
 constexpr uint NUM_CIRCLES = 2;
 constexpr uint POINTS_PER_CIRCLE = NUM_POINTS / NUM_CIRCLES;
 constexpr uint RENDER_TYPE = GL_TRIANGLE_STRIP;
-constexpr uint MAX_TIME = 16;
-constexpr uint NUM_DIGITS = 4;
 
 int main()
 {
@@ -152,24 +150,17 @@ int main()
         // comentários detalhados dentro da definição de BuildTriangles().
         glBindVertexArray(vertex_array_object_id);
 
-        int seconds = (int)glfwGetTime() % MAX_TIME;
-        for (uint digit = 0; digit < NUM_DIGITS; digit++)
-        {
-            const int instance_id = digit;
-            const float dx = instance_id * 1.5f;
-            glm::mat4 model = Matrix_Translate() * Matrix_scale(0.3f, 0.3f, 0.3f);
-            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-            // Pedimos para a GPU rasterizar os vértices apontados pelo VAO como
-            // triângulos.
-            //
-            //                +--- Veja slides 182-188 do documento Aula_04_Modelagem_Geometrica_3D.pdf.
-            //                |          +--- O array "indices[]" contém 6 índices (veja função BuildTriangles()).
-            //                |          |  +--- Os índices são do tipo "GLubyte" (8 bits sem sinal)
-            //                |          |  |                 +--- Vértices começam em indices[0] (veja função BuildTriangles()).
-            //                |          |  |                 |
-            //                V          V  V                 V
-            glDrawElements(RENDER_TYPE, NUM_POINTS + 2, GL_UNSIGNED_BYTE, 0);
-        }
+        // Pedimos para a GPU rasterizar os vértices apontados pelo VAO como
+        // triângulos.
+        //
+        //                +--- Veja slides 182-188 do documento Aula_04_Modelagem_Geometrica_3D.pdf.
+        //                |          +--- O array "indices[]" contém 6 índices (veja função BuildTriangles()).
+        //                |          |  +--- Os índices são do tipo "GLubyte" (8 bits sem sinal)
+        //                |          |  |                 +--- Vértices começam em indices[0] (veja função BuildTriangles()).
+        //                |          |  |                 |
+        //                V          V  V                 V
+        glDrawElements(RENDER_TYPE, NUM_POINTS+2, GL_UNSIGNED_BYTE, 0);
+
         // "Desligamos" o VAO, evitando assim que operações posteriores venham a
         // alterar o mesmo. Isso evita bugs.
         glBindVertexArray(0);

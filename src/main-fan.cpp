@@ -51,12 +51,8 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
 
-constexpr uint NUM_POINTS = 32;
-constexpr uint NUM_CIRCLES = 2;
-constexpr uint POINTS_PER_CIRCLE = NUM_POINTS / NUM_CIRCLES;
-constexpr uint RENDER_TYPE = GL_TRIANGLE_STRIP;
-constexpr uint MAX_TIME = 16;
-constexpr uint NUM_DIGITS = 4;
+constexpr uint NUM_POINTS = 17;
+constexpr uint RENDER_TYPE = GL_TRIANGLE_FAN;
 
 int main()
 {
@@ -152,24 +148,17 @@ int main()
         // comentários detalhados dentro da definição de BuildTriangles().
         glBindVertexArray(vertex_array_object_id);
 
-        int seconds = (int)glfwGetTime() % MAX_TIME;
-        for (uint digit = 0; digit < NUM_DIGITS; digit++)
-        {
-            const int instance_id = digit;
-            const float dx = instance_id * 1.5f;
-            glm::mat4 model = Matrix_Translate() * Matrix_scale(0.3f, 0.3f, 0.3f);
-            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-            // Pedimos para a GPU rasterizar os vértices apontados pelo VAO como
-            // triângulos.
-            //
-            //                +--- Veja slides 182-188 do documento Aula_04_Modelagem_Geometrica_3D.pdf.
-            //                |          +--- O array "indices[]" contém 6 índices (veja função BuildTriangles()).
-            //                |          |  +--- Os índices são do tipo "GLubyte" (8 bits sem sinal)
-            //                |          |  |                 +--- Vértices começam em indices[0] (veja função BuildTriangles()).
-            //                |          |  |                 |
-            //                V          V  V                 V
-            glDrawElements(RENDER_TYPE, NUM_POINTS + 2, GL_UNSIGNED_BYTE, 0);
-        }
+        // Pedimos para a GPU rasterizar os vértices apontados pelo VAO como
+        // triângulos.
+        //
+        //                +--- Veja slides 182-188 do documento Aula_04_Modelagem_Geometrica_3D.pdf.
+        //                |          +--- O array "indices[]" contém 6 índices (veja função BuildTriangles()).
+        //                |          |  +--- Os índices são do tipo "GLubyte" (8 bits sem sinal)
+        //                |          |  |                 +--- Vértices começam em indices[0] (veja função BuildTriangles()).
+        //                |          |  |                 |
+        //                V          V  V                 V
+        glDrawElements(RENDER_TYPE, NUM_POINTS + 1, GL_UNSIGNED_BYTE, 0);
+
         // "Desligamos" o VAO, evitando assim que operações posteriores venham a
         // alterar o mesmo. Isso evita bugs.
         glBindVertexArray(0);
@@ -213,23 +202,18 @@ GLuint BuildTriangles()
     // Este vetor "NDC_coefficients" define a GEOMETRIA (veja slides 103-110 do documento Aula_04_Modelagem_Geometrica_3D.pdf).
     //
 
-    constexpr uint8_t ndc_stride = 4;
-    GLfloat NDC_coefficients[NUM_POINTS*ndc_stride] = {0};
+    GLfloat NDC_coefficients[NUM_POINTS*4] = {0};
     [[maybe_unused]] constexpr uint8_t X = 0, Y = 1, Z = 2, W = 3;
     NDC_coefficients[W] = 1.0f;
-    constexpr float INNER = 0.5f, OUTER = 0.7f;
-    for (uint i = 0; i < POINTS_PER_CIRCLE; i++)
-    {
-        const GLfloat t = M_PI * (2 * (static_cast<float>(i)) / static_cast<float>(POINTS_PER_CIRCLE));
-        for (uint j = 0; j < NUM_CIRCLES; j++) {
-            const GLfloat r = j == 0 ? INNER : OUTER;
-            const GLfloat x = r * cosf(t);
-            const GLfloat y = r * sinf(t);
-            NDC_coefficients[(i*NUM_CIRCLES+j) * ndc_stride + X] = x;         // X
-            NDC_coefficients[(i*NUM_CIRCLES+j) * ndc_stride + Y] = y;    // Y
-            NDC_coefficients[(i*NUM_CIRCLES+j) * ndc_stride + Z] = 0.0f; // Z
-            NDC_coefficients[(i*NUM_CIRCLES+j) * ndc_stride + W] = 1.0f; // W
-        }
+    for (uint i = 1; i < NUM_POINTS; i++) {
+        const GLfloat r = 0.7f;
+        const GLfloat t = M_PI * (2 * (static_cast<float>(i - 1)) / static_cast<float>(NUM_POINTS - 1));
+        const GLfloat x = r * cosf(t);
+        const GLfloat y = r * sinf(t);
+        NDC_coefficients[i * 4 + X] = x; // X
+        NDC_coefficients[i * 4 + Y] = y; // Y
+        NDC_coefficients[i * 4 + Z] = 0.0f; // Z
+        NDC_coefficients[i * 4 + W] = 1.0f; // W
     }
 
     // Criamos o identificador (ID) de um Vertex Buffer Object (VBO).  Um VBO é
@@ -310,15 +294,15 @@ GLuint BuildTriangles()
     constexpr uint8_t color_stride = 4;
     GLfloat color_coefficients[(NUM_POINTS) * color_stride] = {0}; // All zeroes
     [[maybe_unused]] constexpr uint8_t R = 0, G = 1, B = 2, A = 3;
-    for (uint i = 0; i < POINTS_PER_CIRCLE; i++)
-    {
-        for (uint j = 0; j < NUM_CIRCLES; j++) {
-            color_coefficients[(i*NUM_CIRCLES+j) * color_stride + R] = j == 0 ? 1.0f : 0.0f;
-            color_coefficients[(i*NUM_CIRCLES+j) * color_stride + G] = 0.0f;
-            color_coefficients[(i*NUM_CIRCLES+j) * color_stride + B] = j == 0 ? 0.0f : 1.0f;  
-            color_coefficients[(i*NUM_CIRCLES+j) * color_stride + A] = 1.0f;
-        }
+    color_coefficients[0 * color_stride + R] = 1.0f;
+    color_coefficients[0 * color_stride + A] = 1.0f;
+    for (size_t i = 1; i < NUM_POINTS; i++) {
+        color_coefficients[i * color_stride + R] = 0.0f;
+        color_coefficients[i * color_stride + G] = 0.0f;
+        color_coefficients[i * color_stride + B] = 1.0f;  
+        color_coefficients[i * color_stride + A] = 1.0f;
     }
+
     GLuint VBO_color_coefficients_id;
     glGenBuffers(1, &VBO_color_coefficients_id);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_color_coefficients_id);
@@ -337,13 +321,12 @@ GLuint BuildTriangles()
     //
     // Este vetor "indices" define a TOPOLOGIA (veja slides 103-110 do documento Aula_04_Modelagem_Geometrica_3D.pdf).
     //
-    GLubyte indices[NUM_POINTS+2] = {0}; //{ 0,1,2, 2,1,3 }; // GLubyte: valores entre 0 e 255 (8 bits sem sinal).
-    for (uint i = 0; i < NUM_POINTS; i++)
+    GLubyte indices[1+NUM_POINTS] = {0}; //{ 0,1,2, 2,1,3 }; // GLubyte: valores entre 0 e 255 (8 bits sem sinal).
+    for (uint i = 1; i < NUM_POINTS; i++)
     {
         indices[i] = static_cast<GLubyte>(i);
-    };
-    indices[NUM_POINTS] = 0;
-    indices[NUM_POINTS+1] = 1;
+    }
+    indices[NUM_POINTS] = 1;
 
     // Criamos um buffer OpenGL para armazenar os índices acima
     GLuint indices_id;
