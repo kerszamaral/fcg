@@ -15,12 +15,10 @@
 //  vira
 //    #include <cstdio> // Em C++
 //
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <string.h>
-typedef unsigned int uint;
 
 // Headers abaixo são específicos de C++
 #include <iostream>
