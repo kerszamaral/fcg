@@ -272,7 +272,9 @@ int main()
         const glm::vec4 camera_view_vector = -glm::vec4(x,y,z,0.0f); // Vetor "view", sentido para onde a câmera está virada
         const glm::vec4 camera_up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
         // With the identity camera_view = -w, and u x v = -v x u, we can do this
-        const glm::vec4 u_vector = crossproduct(camera_view_vector, camera_up_vector);
+        glm::vec4 u_vector = crossproduct(camera_view_vector, camera_up_vector);
+        const bool is_u_null = (u_vector.x == 0.0f && u_vector.y == 0.0f && u_vector.z == 0.0f);
+        u_vector = is_u_null ? u_vector : u_vector / norm(u_vector); // Normaliza o vetor u, evitando movimento não unitário
 
 
         // ADDED: Update the frame time
