@@ -8,3 +8,6 @@ clean:
 
 run: ./bin/Linux/main
 	cd bin/Linux && ./main
+
+run_prof:
+	cd bin/Linux && ./main_prof
