@@ -351,32 +351,115 @@ int main()
         // Tiramos da pilha a matriz model guardada anteriormente
         PopMatrix(model);
 
-        PushMatrix(model); // Guardamos matriz model atual na pilha
-            model = model * Matrix_Translate(-0.55f, 0.0f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com uma translação para o braço direito
+        //-----------------------------
+        // Braco
+        //-----------------------------
+        constexpr auto NUMBER_OF_ARMS = 2;
+        constexpr auto RIGHT_ARM = 0;
+        for (int i = 0; i < NUMBER_OF_ARMS; i++)
+        {
+            const auto right = i == RIGHT_ARM ? 1.0f : -1.0f;
             PushMatrix(model); // Guardamos matriz model atual na pilha
-                model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do braço direito
-                      * Matrix_Rotate_Z(g_AngleZ)  // TERCEIRO rotação Z de Euler
-                      * Matrix_Rotate_Y(g_AngleY)  // SEGUNDO rotação Y de Euler
-                      * Matrix_Rotate_X(g_AngleX); // PRIMEIRO rotação X de Euler
+                model = model * Matrix_Translate(-0.55f*right, 0.0f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com uma translação para o braço direito
                 PushMatrix(model); // Guardamos matriz model atual na pilha
-                    model = model * Matrix_Scale(0.2f, 0.6f, 0.2f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do braço direito
-                    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
-                    DrawCube(render_as_black_uniform); // #### BRAÇO DIREITO // Desenhamos o braço direito
-                PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
-                PushMatrix(model); // Guardamos matriz model atual na pilha
-                    model = model * Matrix_Translate(0.0f, -0.65f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com a translação do antebraço direito
-                    model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do antebraço direito
-                          * Matrix_Rotate_Z(g_ForearmAngleZ)  // SEGUNDO rotação Z de Euler
-                          * Matrix_Rotate_X(g_ForearmAngleX); // PRIMEIRO rotação X de Euler
+                    model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do braço direito
+                          * Matrix_Rotate_Z(g_AngleZ*right)  // TERCEIRO rotação Z de Euler
+                          * Matrix_Rotate_Y(g_AngleY)  // SEGUNDO rotação Y de Euler
+                          * Matrix_Rotate_X(g_AngleX); // PRIMEIRO rotação X de Euler
                     PushMatrix(model); // Guardamos matriz model atual na pilha
-                        model = model * Matrix_Scale(0.2f, 0.6f, 0.2f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do antebraço direito
+                        model = model * Matrix_Scale(0.2f, 0.6f, 0.2f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do braço direito
                         glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
-                        DrawCube(render_as_black_uniform); // #### ANTEBRAÇO DIREITO // Desenhamos o antebraço direito
+                        DrawCube(render_as_black_uniform); // #### BRAÇO DIREITO // Desenhamos o braço direito
+                    PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PushMatrix(model); // Guardamos matriz model atual na pilha
+                        model = model * Matrix_Translate(0.0f*right, -0.65f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com a translação do antebraço direito
+                        model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do antebraço direito
+                              * Matrix_Rotate_Z(g_ForearmAngleZ*right)  // SEGUNDO rotação Z de Euler
+                              * Matrix_Rotate_X(g_ForearmAngleX); // PRIMEIRO rotação X de Euler
+                        PushMatrix(model); // Guardamos matriz model atual na pilha
+                            model = model * Matrix_Scale(0.2f, 0.6f, 0.2f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do antebraço direito
+                            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
+                            DrawCube(render_as_black_uniform); // #### ANTEBRAÇO DIREITO // Desenhamos o antebraço direito
+                        PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PushMatrix(model); // Guardamos matriz model atual na pilha
+                        model = model * Matrix_Translate(0.0f*right, -1.30f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com a translação da mão direita
+                        model = model // Atualizamos matriz model (multiplicação à direita) com a rotação da mão direita
+                              * Matrix_Rotate_Z(g_ForearmAngleZ*right)  // SEGUNDO rotação Z de Euler
+                              * Matrix_Rotate_X(g_ForearmAngleX); // PRIMEIRO rotação X de Euler
+                        PushMatrix(model); // Guardamos matriz model atual na pilha
+                            model = model * Matrix_Scale(0.2f, 0.1f, 0.2f); // Atualizamos matriz model (multiplicação à direita) com um escalamento da mão direita
+                            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
+                            DrawCube(render_as_black_uniform); // #### MÃO DIREITA // Desenhamos a mão direita
+                        PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
                     PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
                 PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
             PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
-        PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+        }
 
+        //-----------------------------
+        // PERNAS
+        //-----------------------------
+        constexpr auto NUMBER_OF_LEGS = 2;
+        constexpr auto RIGHT_LEG = 0;
+        for (int i = 0; i < NUMBER_OF_LEGS; i++)
+        {
+            const auto right = i == RIGHT_LEG ? 1.0f : -1.0f;
+            PushMatrix(model); // Guardamos matriz model atual na pilha
+                model = model * Matrix_Translate(-0.20f*right, -1.05f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com uma translação para a perna direita
+                PushMatrix(model); // Guardamos matriz model atual na pilha
+                    // model = model // Atualizamos matriz model (multiplicação à direita) com a rotação da perna direita
+                    //       * Matrix_Rotate_Z(g_AngleZ*right)  // TERCEIRO rotação Z de Euler
+                    //       * Matrix_Rotate_Y(g_AngleY)  // SEGUNDO rotação Y de Euler
+                    //       * Matrix_Rotate_X(g_AngleX); // PRIMEIRO rotação X de Euler
+                    PushMatrix(model); // Guardamos matriz model atual na pilha
+                        model = model * Matrix_Scale(0.3f, 0.7f, 0.3f); // Atualizamos matriz model (multiplicação à direita) com um escalamento da perna direita
+                        glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
+                        DrawCube(render_as_black_uniform); // #### PERNA DIREITA // Desenhamos a perna direita
+                    PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PushMatrix(model); // Guardamos matriz model atual na pilha
+                        model = model * Matrix_Translate(0.0f*right, -0.75f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com a translação do panturilha direita
+                        // model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do panturilha direita
+                        //       * Matrix_Rotate_Z(g_ForearmAngleZ*right)  // SEGUNDO rotação Z de Euler
+                        //       * Matrix_Rotate_X(g_ForearmAngleX); // PRIMEIRO rotação X de Euler
+                        PushMatrix(model); // Guardamos matriz model atual na pilha
+                            model = model * Matrix_Scale(0.25f, 0.7f, 0.25f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do panturilha direita
+                            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
+                            DrawCube(render_as_black_uniform); // #### PANTURILHA DIREITA // Desenhamos a panturilha direita
+                        PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PushMatrix(model); // Guardamos matriz model atual na pilha
+                        model = model * Matrix_Translate(0.0f*right, -1.50f, 0.1f); // Atualizamos matriz model (multiplicação à direita) com a translação do pé direito
+                        // model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do pé direito
+                        //       * Matrix_Rotate_Z(g_ForearmAngleZ*right)  // SEGUNDO rotação Z de Euler
+                        //       * Matrix_Rotate_X(g_ForearmAngleX); // PRIMEIRO rotação X de Euler
+                        PushMatrix(model); // Guardamos matriz model atual na pilha
+                            model = model * Matrix_Scale(0.2f, 0.1f, 0.5f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do pé direito
+                            glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
+                            DrawCube(render_as_black_uniform); // #### PÉ DIREITO // Desenhamos o pé direito
+                        PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                    PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+                PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+            PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+        }
+
+        //-----------------------------
+        // CABEÇA
+        //-----------------------------
+        PushMatrix(model); // Guardamos matriz model atual na pilha
+            model = model * Matrix_Translate(0.0f, 0.05f, 0.0f); // Atualizamos matriz model (multiplicação à direita) com uma translação para o braço direito
+            PushMatrix(model); // Guardamos matriz model atual na pilha
+                model = model // Atualizamos matriz model (multiplicação à direita) com a rotação do braço direito
+                      * Matrix_Rotate_Z(g_AngleZ)  // TERCEIRO rotação Z de Euler
+                      * Matrix_Rotate_Y(-g_AngleY)  // SEGUNDO rotação Y de Euler
+                      * Matrix_Rotate_X(-g_AngleX); // PRIMEIRO rotação X de Euler
+                PushMatrix(model); // Guardamos matriz model atual na pilha
+                    model = model * Matrix_Scale(-0.3f, -0.3f, 0.3f); // Atualizamos matriz model (multiplicação à direita) com um escalamento do braço direito
+                    glUniformMatrix4fv(model_uniform, 1, GL_FALSE, glm::value_ptr(model)); // Enviamos matriz model atual para a GPU
+                    DrawCube(render_as_black_uniform); // #### BRAÇO DIREITO // Desenhamos o braço direito
+                PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+            PopMatrix(model); // Tiramos da pilha a matriz model guardada anteriormente
+        PushMatrix(model); // Guardamos matriz model atual na pilha
         // Neste ponto a matriz model recuperada é a matriz inicial (translação do torso)
 
         // Agora queremos desenhar os eixos XYZ de coordenadas GLOBAIS.
