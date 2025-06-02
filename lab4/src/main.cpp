@@ -414,6 +414,13 @@ int main(int argc, char* argv[])
         glUniform1i(g_object_id_uniform, BUNNY);
         DrawVirtualObject("the_bunny");
 
+        // Added back the plane
+        model = Matrix_Translate(0.0f, -1.0f, 0.0f)
+                * Matrix_Scale(2.0f, 1.0f, 2.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PLANE);
+        DrawVirtualObject("the_plane");
+
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
@@ -434,7 +441,7 @@ int main(int argc, char* argv[])
         // Veja o link: https://en.wikipedia.org/w/index.php?title=Multiple_buffering&oldid=793452829#Double_buffering_in_computer_graphics
         glfwSwapBuffers(window);
 
-        // Verificamos com o sistema operacional se houve alguma interação do
+        // Verificamos com o sistema op/peracional se houve alguma interação do
         // usuário (teclado, mouse, ...). Caso positivo, as funções de callback
         // definidas anteriormente usando glfwSet*Callback() serão chamadas
         // pela biblioteca GLFW.
