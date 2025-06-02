@@ -85,8 +85,15 @@ void main()
 
         vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
 
-        U = 0.0;
-        V = 0.0;
+        // U = 0.0;
+        // V = 0.0;
+
+        float r = length(position_model - bbox_center);
+        float theta = atan(position_model.x, position_model.z);
+        float phi = asin(position_model.y / r);
+
+        U = (theta + M_PI) / (2.0 * M_PI);
+        V = (phi + M_PI_2) / M_PI;
     }
     else if ( object_id == BUNNY )
     {
@@ -108,8 +115,12 @@ void main()
         float minz = bbox_min.z;
         float maxz = bbox_max.z;
 
-        U = 0.0;
-        V = 0.0;
+        // U = 0.0;
+        // V = 0.0;
+
+        // Normalizando as coordenadas de textura U e V
+        U = (position_model.x - minx) / (maxx - minx);
+        V = (position_model.y - miny) / (maxy - miny);
     }
     else if ( object_id == PLANE )
     {
