@@ -441,7 +441,7 @@ int main(int argc, char* argv[])
         // Veja o link: https://en.wikipedia.org/w/index.php?title=Multiple_buffering&oldid=793452829#Double_buffering_in_computer_graphics
         glfwSwapBuffers(window);
 
-        // Verificamos com o sistema op/peracional se houve alguma interação do
+        // Verificamos com o sistema operacional se houve alguma interação do
         // usuário (teclado, mouse, ...). Caso positivo, as funções de callback
         // definidas anteriormente usando glfwSet*Callback() serão chamadas
         // pela biblioteca GLFW.
